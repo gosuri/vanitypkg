@@ -5,7 +5,7 @@ vanitypkg provides a server that hosts vanity package names for Go package hoste
 ## Usage
 
 ```sh
-$ vanitypkg -github-user=<user> -port=<port>
+$ vanitypkg -github-user=<user> [-gb-repos=<repos>...] [-port=<port>]
 ```
 
 ### Example
@@ -22,6 +22,15 @@ $ go get -insecure example.com/vanitypkg
 ...
 $ ls $GOPATH/src/example.com
 vanitypkg
+```
+
+### GB Repos (wip)
+
+Option `-gb-repos` takes a list of projects build using [GB](http://getgb.io) and serves them accordingly.
+
+
+```sh
+$ vanitypkg -github-user=gosuri -listen=:80 -gb-repos=github.com/gosuri/examplegb,github.com/gosuri/foo
 ```
 
 ## Installation

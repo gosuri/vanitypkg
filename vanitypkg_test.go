@@ -10,7 +10,21 @@ import (
 func TestGithubRepo(t *testing.T) {
 	pkg := &Package{GitHubUser: "gosuri", Path: "/uilive/foo/...?go-get=1"}
 	got := pkg.GitHubRepo()
-	want := "https://github.com/gosuri/uilive"
+	want := "github.com/gosuri/uilive"
+	if got != want {
+		t.Fatal("want", want, "got", got)
+	}
+}
+
+func TestSourcePrefix(t *testing.T) {
+	GBRepos = []string{"github.com/user/repo"}
+	pkg := &Package{
+		Host:       "example.com",
+		GitHubUser: "user",
+		Path:       "/repo/inner",
+	}
+	got := pkg.SourcePrefix()
+	want := "master/src"
 	if got != want {
 		t.Fatal("want", want, "got", got)
 	}

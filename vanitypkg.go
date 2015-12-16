@@ -2,6 +2,7 @@
 package vanitypkg
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"net/url"
@@ -16,13 +17,17 @@ var Listen = ":8080"
 // GitHubUser is the user or org id to redirect requests to
 var GitHubUser string
 
+// GBPackges are a list of repos that use GB
+var GBRepos []string
+
 // RunServer starts an http server that server packages
-func RunServer() {
+func RunServer() error {
+	if len(GitHubUser) == 0 {
+		return errors.New("github-user cannot be blank")
+	}
 	http.HandleFunc("/", handler)
 	log.Println("vanitypkg: starting server on", Listen)
-	if err := http.ListenAndServe(Listen, nil); err != nil {
-		log.Fatal(err)
-	}
+	return http.ListenAndServe(Listen, nil)
 }
 
 // handler is the http handler that renders response
@@ -49,9 +54,18 @@ func (p *Package) RootPath() string {
 	return path.Join(p.Host, p.rootpkg())
 }
 
-// GitHubRepo returns the github repo for a package
+// GitHubRepo returns the github repo path for the root package
 func (p *Package) GitHubRepo() string {
-	return "https://" + path.Join("github.com", p.GitHubUser, p.rootpkg())
+	return path.Join("github.com", p.GitHubUser, p.rootpkg())
+}
+
+func (p *Package) SourcePrefix() string {
+	for _, rep := range GBRepos {
+		if strings.HasPrefix(p.GitHubRepo(), rep) {
+			return path.Join("master", "src")
+		}
+	}
+	return "master"
 }
 
 // PackagePath returns the the full path to the package
@@ -78,8 +92,8 @@ const htmlT = `<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="go-import" content="{{ .RootPath }} git {{ .GitHubRepo }}">
-<meta name="go-source" content="{{ .RootPath }} {{ .GitHubRepo }} {{ .GitHubRepo }}/tree/master{/dir} {{ .GitHubRepo }}/blob/master{/dir}/{file}#L{line}">
+<meta name="go-import" content="{{ .RootPath }} git https://{{ .GitHubRepo }}">
+<meta name="go-source" content="{{ .RootPath }} https://{{ .GitHubRepo }} https://{{ .GitHubRepo }}/tree/{{ .SourcePrefix }}{/dir} https://{{ .GitHubRepo }}/blob/{{ .SourcePrefix }}{/dir}/{file}#L{line}">
 <meta http-equiv="refresh" content="0; url=https://godoc.org/{{ .PackagePath }}">
 </head>
 <body>
