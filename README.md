@@ -14,13 +14,14 @@ $ vanitypkg -github-user=<user> -port=<port>
 # start on port 80 using sudo
 $ sudo vanitypkg -github-user=gosuri -port=80
 
-# make go.gregosuri.com resolvable, this should be dns entry
-$ sudo echo "127.0.0.1 go.gregosuri.com" >> /etc/hosts 
+# make example.com resolvable, this should be dns entry
+$ sudo echo "127.0.0.1 example.com" >> /etc/hosts 
 
-$ go get -insecure go.gregosuri.com/uiprogress
+# production deploys should run on https, use -insecure flag locally
+$ go get -insecure example.com/vanitypkg
 ...
-$ ls $GOPATH/src/go.gregosuri.com
-uiprogress
+$ ls $GOPATH/src/example.com
+vanitypkg
 ```
 
 ## Installation
